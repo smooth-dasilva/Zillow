@@ -1,3 +1,5 @@
+*.ini
+*.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -15,6 +17,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+bin/
 lib64/
 parts/
 sdist/
@@ -100,6 +103,9 @@ celerybeat.pid
 
 # SageMath parsed files
 *.sage.py
+
+#config
+.cfg
 
 # Environments
 .env
