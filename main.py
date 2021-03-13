@@ -1,8 +1,11 @@
 import os
 import math
-import pandas as pd
-import smtplib, ssl
-import matplotlib.pyplot as plt
+
+
+
+from getpass import getpass
+import mysql.connector
+
 
 
 from Utilities.logger import setup_logger
@@ -16,12 +19,23 @@ app_logger = setup_logger('app_logger', 'app.log')
 logSeparator = '++++++++++++++++++++++++++++'
 
 # On app load : create logs
-app_logger.info(f"Begin app log from {__name__}\n{logSeparator}")
+app_logger.info(f"Begin app log\n{logSeparator}")
 
 
 
 def main():   
-    app_logger.info("I work...")
+    try:
+        with mysql.connector.connect(
+            host="localhost",
+            user=input("Enter username: "),
+            password=getpass("Enter password: "),
+        ) as connection:
+            print(connection)
+            create_db_query = "CREATE DATABASE online_movie_rating"
+            with connection.cursor() as cursor:
+                cursor.execute(create_db_query)
+    except mysql.connector.Error as e:
+        app_logger.exception(e)
 
 
 if __name__ =="__main__":
@@ -30,4 +44,4 @@ if __name__ =="__main__":
 
 
 # logger ending
-app_logger.info(f"End app log from {__name__}\n{logSeparator}")
+app_logger.info(f"End app log\n{logSeparator}")
