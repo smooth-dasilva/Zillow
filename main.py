@@ -1,19 +1,18 @@
 import os
 import math
-
-
-
-from getpass import getpass
+import logging
+import contextlib
 import mysql.connector
-
-
 
 from Utilities.logger import setup_logger
 from Utilities.quickstart import SendMessage
+from Utilities.mysql_conn import get_mysql_conn, get_mysql_dbs
+
+
 
 
 # set up loggers
-app_logger = setup_logger('app_logger', 'app.log')
+app_logger = setup_logger('app_logger', './app.log')
 
 # for log session separator
 logSeparator = '++++++++++++++++++++++++++++'
@@ -24,23 +23,9 @@ app_logger.info(f"Begin app log\n{logSeparator}")
 
 
 def main():   
-    try:
-        with mysql.connector.connect(
-            host="localhost",
-            user=input("Enter username: "),
-            password=getpass("Enter password: "),
-        ) as connection:
-            print(connection)
-            create_db_query = "CREATE DATABASE online_movie_rating"
-            with connection.cursor() as cursor:
-                cursor.execute(create_db_query)
-    except mysql.connector.Error as e:
-        app_logger.exception(e)
-
-
+    get_mysql_dbs(app_logger)
 if __name__ =="__main__":
     main()
-
 
 
 # logger ending
