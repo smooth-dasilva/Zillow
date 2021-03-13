@@ -6,8 +6,7 @@ import mysql.connector
 
 from Utilities.logger import setup_logger
 from Utilities.quickstart import SendMessage
-from Utilities.mysql_conn import get_mysql_conn, get_mysql_dbs
-
+from Utilities.mysql_conn import mysql_conn_class
 
 
 
@@ -22,8 +21,14 @@ app_logger.info(f"Begin app log\n{logSeparator}")
 
 
 
+
+
+
+
 def main():   
-    get_mysql_dbs(app_logger)
+    DatabaseExpert = mysql_conn_class(app_logger)
+    DatabaseExpert.get_database_names()
+    
 if __name__ =="__main__":
     main()
 
