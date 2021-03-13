@@ -108,6 +108,7 @@ celerybeat.pid
 *.cfg
 
 # Environments
+Scripts/
 .env
 .venv
 env/
