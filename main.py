@@ -32,7 +32,13 @@ app_logger.info(f"Begin app log\n{logSeparator}")
 def main():
 
     DatabaseExpert = mysql_conn_class(app_logger)
-    #db_names_in_mysql = DatabaseExpert.get_database_names()
+    
+    db_names_in_mysql = DatabaseExpert.get_database_names()
+    #create staging area for dataset pre etl
+ 
+    if 'zillowdb' not in db_names_in_mysql:
+        DatabaseExpert.create_database('zillowdb')
+
 
     #we use a file expert to get all the right dataset names into a list that we access (fileExpert.NameDeq)
     fileExpert = FileExpertClass(app_logger, r'[A-Za-z0-9]+_time_series.csv', './datasets/')
@@ -49,7 +55,8 @@ def main():
     Validation for directory and filename
     List of all dataset path +  file names  (and so access to pandas df or spark df)
     Logger that can record anything anywhere
-    Access to mysql database. though we dont have any tables thats nothing but a sql query away
+    Access to mysql database. Created actual zillowdb
+    though we dont have any tables thats nothing but a sql query away
     Able to tar and archive (not implemented yet)
     """
 ##### TODO ###########################
@@ -60,13 +67,13 @@ def main():
 
         if name =="State_time_series.csv":
             df = pd.read_csv(fileExpert.path+name)
-            col_types =df.infer_objects().dtypes
-            for name, type in col_types.items():
-                print(name, type)
+            print(df.convert_dtypes().dtypes)
+            # for name, type in col_types.items():
+            #     print(name, type)
 
 
     #after the above loop, ideally we'll have all the files processed and added to the database. 
-    #this may need to altered depending on that complexity
+    #this may need to altered depending on that complexity...maybe not added to db just tables created
 
 
 
