@@ -123,13 +123,13 @@ def get_type(val):
                 float(val)
 
             except:
-                return "string"
+                return "VARCHAR(100)"
 
             else:
-                return "float64"
+                return "FLOAT"
 
         else:
-            return "Int64" 
+            return "INT" 
             # The Int actually needs to be capitalized because converting nulls to int (lowercase) causes the data type to become float in astype()
 
     else:

@@ -38,9 +38,10 @@ class FileExpertClass:
             return NameDeqTemp
 
     #match filename with specified patter when creating File Expert
-    def MatchFilenameToPattern(self,el):
-        find = re.compile(self.pattern)
-        match = find.finditer(el)
+    def MatchFilenameToPattern(self,filename):
+
+ 
+        match = re.match(self.pattern, filename)
         if match:
             return True
         return False
