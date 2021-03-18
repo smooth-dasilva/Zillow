@@ -1,10 +1,18 @@
 import os
 import contextlib
 import mysql.connector
+import sqlalchemy
+import pymysql
+
 from getpass import getpass
 import re
 from collections import deque
 
+from sqlalchemy import create_engine
+
+"""
+USE ORACLE INSTEAD
+"""
 class mysql_conn_class:
 
     def __init__(self, _app_logger, mysqldb) -> None:
@@ -100,7 +108,7 @@ class mysql_conn_class:
 
 
 
-    def create_table(self, dbname, tbquery):####TODO
+    def create_table(self, dbname, tbquery):
         try:
             with self.get_mysql_conn(dbname) as connection:
                 with connection.cursor() as cursor:
@@ -110,12 +118,41 @@ class mysql_conn_class:
             self.app_logger.exception(e)
             self.app_logger.error("Error creating new table")
 
-    def gen_sql_type(self, pd_type):
-        if pd_type=="Int64": return "INT"
-        if pd_type=="Float64": return "FLOAT"
-        return "VARCHAR(100)"
+
+    def add_dataframe_to_db(self, dbname, tbname,df):####TODO Better
+        try:
+            hostname="localhost"
+            uname="root"
+            pwd = os.environ.get('MYSQL_PWD')
+
+
+            # Create SQLAlchemy engine to connect to MySQL Database
+            engine = create_engine("mysql+pymysql://{user}:{pw}@{host}/{db}"
+                            .format(host=hostname, db=dbname, user=uname, pw=pwd))
+
+
+            database_username = 'root'
+            database_password = os.environ.get('MYSQL_PWD')
+            database_ip       = '127.0.0.1'
+            database_name     = dbname
+            database_connection = sqlalchemy.create_engine('mysql+mysqlconnector://{0}:{1}@{2}/{3}'.
+                                                        format(database_username, database_password, 
+                                                                database_ip, database_name), pool_recycle=1, pool_timeout=57600)
+
+
+            # Convert dataframe to sql table                                   
+            
+            df.to_sql(con=engine, name=tbname, if_exists='replace',chunksize=100)
+
+        except Exception as e:
+            self.app_logger.exception(e)
+            self.app_logger.error(f"Error adding dataframe to {tbname} in datafram {dbname}")
+
+
 
     def describe_table_database(self, dbname, tbname):
+
+
         
         """
         Returns None, simply prints
@@ -134,3 +171,11 @@ class mysql_conn_class:
             self.app_logger.exception(e)
         except Exception as e:
             self.app_logger.exception(e)
+
+
+
+
+    def gen_sql_type(self, pd_type):
+        if pd_type=="Int64": return "INT"
+        if pd_type=="Float64": return "FLOAT"
+        return "VARCHAR(100)"
