@@ -5,23 +5,21 @@ import pandas as pd
 
 class orcl_conn_class:
 
-    def __init__(self, usr, p_host, p_service) -> None:
+    def __init__(self, usr, pwd,  p_host, p_service) -> None:
         self.user = usr
+        self.pwd = pwd
         self.p_host = p_host
         self.p_service = p_service
     @contextlib.contextmanager
     def get_orcl_conn(self):
             conn = cx_Oracle.connect(
                 self.user,
-                'root',
+                self.pwd,
                 "{0}/{1}".format(self.p_host, self.p_service)
             )                       
             try:
                 yield conn
             except cx_Oracle.DatabaseError as e:
-                # error, = e.args
-                # if error.code == 1017:
-                #     self.app_logger.error("Please check credentials given...")
                 print("Tracebac:k\n"+e)
             finally:
                 conn.close()

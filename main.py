@@ -1,5 +1,5 @@
 import pandas as pd
-import time
+
 import pandas as pd
 
 
@@ -7,29 +7,25 @@ from Utilities.logger import setup_logger
 from quickstart import SendMessage
 from Experts.FileExpert import FileExpertClass
 from Utilities.helpers import *
+import config
+
 
 #list of regex to search for
 regex_list = [r'[A-Za-z0-9]+_time_series.csv'] 
 
-#Send email of app log to self vars
-to = "luan.dasilva@smoothstack.com"
-sender = "luan.dasilva@smootstack.com"
-subject = "Automated Log File Email"
-msgHtml = "Log file from app run"
-msgPlain = "Log file from app run"
 
-os.chdir("C:/Users/luanf/OneDrive/Desktop/ZillowMAIN/ZillowEnv")
-start = time.time()
+os.chdir(config.source)
 
 app_logger = setup_logger('app_logger', './app.log')
 logSeparator = '\n++++++++++++++++++++++++++++'
 app_logger.info(f"\nBegin app log\n{logSeparator}")
 
-emptyFileList = [] 
 old_new_names_map = {}
+
 def main():
+    
     for pattern in regex_list:
-        filesFinder = FileExpertClass(app_logger, pattern, './datasets/')
+        filesFinder = FileExpertClass(app_logger, pattern, config.dataLocation)
         if filesFinder.path=="ERROR":
             return app_logger.error(f"\nValid path not given. \nTerminating program...")
         if not filesFinder.NameDeq:
@@ -52,16 +48,12 @@ def main():
                 df = convert_col_types(df)
                 app_logger.info(f"\nReplacing nulls with string 'NAN'")
                 df = replace_nulls_with(data=df, replacewith="NAN", logger=app_logger)
-                app_logger.info(f"\nArchiving file...")
-                DataframeArchive(filesFinder.path+name,filesFinder.path+'./archive/'+tname+'tar.gz', app_logger)
-    SendMessage(sender, to, subject, msgHtml, msgPlain, './app.log')
+                app_logger.info(f"\nArchiving file...") 
+                DataframeArchive(filesFinder.path+name, config.archiveLocation + tname + 'tar.gz', app_logger)
+
+    SendMessage(config.sender, config.to, config.subject, config.msgHtml, config.msgPlain, config.appLogLocation)
 
 if __name__ =="__main__":
     main()
 
-
-# logger ending
 app_logger.info(f"\nEnd app log\n{logSeparator}")
-
-end = time.time()
-print(end - start)

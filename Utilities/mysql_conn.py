@@ -5,6 +5,8 @@ import mysql.connector
 import sqlalchemy
 from sqlalchemy import create_engine
 
+import config
+
 class mysql_conn_class:
 
     def __init__(self, _app_logger, mysqldb) -> None:
@@ -17,8 +19,8 @@ class mysql_conn_class:
             """
             Context manager used for when specifying database (eg add a record). db kwarg specified
             """
-            conn = mysql.connector.connect(host='localhost',
-                                        user='root',
+            conn = mysql.connector.connect(host=config.orcl_host,
+                                        user=config.orcl_user,
                                         password=os.environ.get('MYSQL_PWD'),
                                         database=db)
             try:
