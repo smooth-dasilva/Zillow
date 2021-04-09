@@ -1,18 +1,10 @@
 import os
 import contextlib
+import mysql
 import mysql.connector
 import sqlalchemy
-import pymysql
-
-from getpass import getpass
-import re
-from collections import deque
-
 from sqlalchemy import create_engine
 
-"""
-USE ORACLE INSTEAD
-"""
 class mysql_conn_class:
 
     def __init__(self, _app_logger, mysqldb) -> None:
@@ -31,7 +23,7 @@ class mysql_conn_class:
                                         database=db)
             try:
                 yield conn
-            except Exception as e:
+            except mysql.connector.Error as e:
                 self.app_logger.exception(e)
             finally:
                 conn.close()
@@ -175,7 +167,7 @@ class mysql_conn_class:
 
 
 
-    def gen_sql_type(self, pd_type):
+    def gen_sql_type(pd_type):
         if pd_type=="Int64": return "INT"
         if pd_type=="Float64": return "FLOAT"
         return "VARCHAR(100)"

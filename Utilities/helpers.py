@@ -108,49 +108,67 @@ def is_file_empty(source, logger=logging):
         return (size == 0)
 
 def get_type(val):
-    
     try:
         dateutil.parser.parse(val)
-
     except:
-
         try:
-            int(val)
-
+            float(val)
         except:
-
-            try:
-                float(val)
-
-            except:
-                return "VARCHAR(100)"
-
-            else:
-                return "FLOAT"
-
+            return "string"
         else:
-            return "INT" 
-            # The Int actually needs to be capitalized because converting nulls to int (lowercase) causes the data type to become float in astype()
-
+            return "float64"
     else:
         return "datetime64"
-
-def convert_col_types(df):
-
-    col_types = {}
-
-    for col in df.columns:
         
+def convert_col_types(df):
+    col_types = {}
+    for col in df.columns:
         for cell in df[col]:
-
             try:
                 col_type = get_type(cell)
-
             except:
                 pass
-
             else:
                 col_types[col] = col_type
                 break
-
+    col_types["RegionName"] = "string"
     return df.astype(col_types, copy = False)
+
+
+
+
+    
+def DataframeArchive(df, name, logger: logging):
+    if not df.empty:
+        archiveLoc='c:/Users/luanf/OneDrive/Desktop/ZillowMAIN/ZillowEnv/datasets/archive/'
+        try:
+            df.to_csv(archiveLoc+name)
+            archive_file(archiveLoc, archiveLoc+'.tar.gz')
+        except Exception as e:
+            logger.error(f"Caught an error trying to archive {name}...")
+            logger.exception(e)
+
+def abbreviateLongNames(colname):
+    if colname == 'Date':
+        return 'Data_MDY'
+    header_map = {'InventorySeasonallyAdjusted': 'InvSeasAdj',
+                  'MedianListingPricePerSqft': 'MedLstPrPerSqft',
+                  'MedianListingPrice': 'MedLstPr',
+                  'MedianPctOfPriceReduction': 'MedPctOfPrRed',
+                  'MedianRentalPricePerSqft': 'MedRntPrPerSqft',
+                  'MedianRentalPrice': 'MedRntPr',
+                  'PctOfHomesDecreasingInValues': 'PctOfHomeDecVal',
+                  'PctOfHomesIncreasingInValues': 'PctOfHomeIncVal',
+                  'PctOfListingsWithPriceReductionsSeasAdj': 'PctLstPrRedSeasAdj',
+                  'SingleFamilyResidence': 'SnglFamRes',
+                  'MultiFamilyResidence5PlusUnits': 'MltFmRes5Uts',
+                  'MedianPriceCutDollar': 'MedPrCutDlr',
+                  'PctOfHomesSellingForGain': 'PctOfHmsSlngGain',
+                  'PctOfHomesSellingForLoss': 'PctOfHmsSlngLoss',
+                  'PctOfListingsWithPriceReductions': 'PctOfLstsWitPrRed',
+                  'SingleFamilyResidenceRental': 'SnglFamResRent',
+                  '5BedroomOrMore': '5BedOrMore'}
+    colname_split = colname.split('_')
+    if colname_split[0] in header_map.keys():
+        colname_split[0] = header_map[colname_split[0]]
+    return '_'.join(colname_split)

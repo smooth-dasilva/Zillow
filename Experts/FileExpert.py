@@ -39,8 +39,6 @@ class FileExpertClass:
 
     #match filename with specified patter when creating File Expert
     def MatchFilenameToPattern(self,filename):
-
- 
         match = re.match(self.pattern, filename)
         if match:
             return True
@@ -51,6 +49,4 @@ class FileExpertClass:
         try:
             return os.listdir(self.path)
         except FileNotFoundError:
-            self.app_logger.error(f"Input error caught from {__name__}. Valid path not given. \nTerminating program...")
             self.path = "ERROR"
-            return ""      
