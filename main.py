@@ -32,24 +32,24 @@ def main():
             return app_logger.error(f"\nNo files with regex pattern {filesFinder.pattern} match in the given {filesFinder.path}. \nTerminating the program...")
 
         for name in filesFinder.NameDeq:
-            fullpath=filesFinder.path+name
-            if is_file_empty(fullpath):
-                app_logger.error(f"\nFound empty file at {fullpath}")
-            else: 
-                tname = name[:-4]
-                app_logger.info(f"\nProcessing file: {name}\nLoading file into pandas dataframe...")
-                df = pd.read_csv(fullpath)
-                for colname in df.columns:
-                    if '_' in colname:
-                        old_new_names_map[colname] = abbreviateLongNames(colname)
-                df.rename(columns=old_new_names_map)
+            if name=="State_time_series.csv":    
+                fullpath=filesFinder.path+name
+                if is_file_empty(fullpath):
+                    app_logger.error(f"\nFound empty file at {fullpath}")
+                else: 
+                    app_logger.info(f"\nProcessing file: {name}\nLoading file into pandas dataframe...")
+                    df = pd.read_csv(fullpath)
+                    for colname in df.columns:
+                        if '_' in colname:
+                            old_new_names_map[colname] = abbreviateLongNames(colname)
+                    df = df.rename(columns=old_new_names_map)
 
-                app_logger.info(f"\nConverting dtypes...")
-                df = convert_col_types(df)
-                app_logger.info(f"\nReplacing nulls with string 'NAN'")
-                df = replace_nulls_with(data=df, replacewith="NAN", logger=app_logger)
-                app_logger.info(f"\nArchiving file...") 
-                DataframeArchive(filesFinder.path+name, config.archiveLocation + tname + 'tar.gz', app_logger)
+                    app_logger.info(f"\nConverting dtypes...")
+                    df = convert_col_types(df)
+                    app_logger.info(f"\nReplacing nulls with string 'NAN'")
+                    df = replace_nulls_with(data=df, replacewith="NAN", logger=app_logger)
+                    app_logger.info(f"\nArchiving file...") 
+                    DataframeArchive(df, name, config.archiveLocation, app_logger)
 
     SendMessage(config.sender, config.to, config.subject, config.msgHtml, config.msgPlain, config.appLogLocation)
 

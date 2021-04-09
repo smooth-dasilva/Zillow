@@ -6,6 +6,7 @@ import logging
 import pandas as pd
 import numpy as np
 
+import config
 import dateutil.parser
 
 
@@ -138,12 +139,11 @@ def convert_col_types(df):
 
 
     
-def DataframeArchive(df, name, logger: logging):
+def DataframeArchive(df,  name, archiveLoc, logger: logging):
     if not df.empty:
-        archiveLoc='c:/Users/luanf/OneDrive/Desktop/ZillowMAIN/ZillowEnv/datasets/archive/'
         try:
-            df.to_csv(archiveLoc+name)
-            archive_file(archiveLoc, archiveLoc+'.tar.gz')
+            df.to_csv(archiveLoc+name, index = False)
+            archive_file(config.archiveLocation+name, archiveLoc+name[:-4]+ '.tar.gz')
         except Exception as e:
             logger.error(f"Caught an error trying to archive {name}...")
             logger.exception(e)
