@@ -47,9 +47,6 @@ class mysql_conn_class:
                 conn.close()
 
     def get_database_names(self):
-        #best practices is to use deques instead of lists if possible . 
-        #they are just  list equivalent with ensured performant left and right appends
-
         db_names_list = []
         try:
             with self.get_mysql_conn() as connection:
@@ -67,9 +64,6 @@ class mysql_conn_class:
             self.app_logger.exception(e)
 
     def get_tables_in_database(self, dbname):
-        #best practices is to use deques instead of lists if possible . 
-        #they are just  list equivalent with ensured performant left and right appends
-
         tb_names_list = []
         try:
             with self.get_mysql_conn(dbname) as connection:
@@ -86,10 +80,6 @@ class mysql_conn_class:
         except Exception as e:
             self.app_logger.exception(e)
 
-
-
-
-        
     def create_database(self, dbname):
         try:
             with self.get_mysql_conn() as connection:
@@ -99,8 +89,6 @@ class mysql_conn_class:
         except mysql.connector.Error as e:
             self.app_logger.exception(e)
             self.app_logger.error("Error creating new database")
-
-
 
     def create_table(self, dbname, tbquery):
         try:
@@ -112,19 +100,13 @@ class mysql_conn_class:
             self.app_logger.exception(e)
             self.app_logger.error("Error creating new table")
 
-
     def add_dataframe_to_db(self, dbname, tbname,df):####TODO Better
         try:
             hostname="localhost"
             uname="root"
             pwd = os.environ.get('MYSQL_PWD')
-
-
-            # Create SQLAlchemy engine to connect to MySQL Database
             engine = create_engine("mysql+pymysql://{user}:{pw}@{host}/{db}"
                             .format(host=hostname, db=dbname, user=uname, pw=pwd))
-
-
             database_username = 'root'
             database_password = os.environ.get('MYSQL_PWD')
             database_ip       = '127.0.0.1'
@@ -133,21 +115,12 @@ class mysql_conn_class:
                                                         format(database_username, database_password, 
                                                                 database_ip, database_name), pool_recycle=1, pool_timeout=57600)
 
-
-            # Convert dataframe to sql table                                   
-            
             df.to_sql(con=engine, name=tbname, if_exists='replace',chunksize=100)
-
         except Exception as e:
             self.app_logger.exception(e)
             self.app_logger.error(f"Error adding dataframe to {tbname} in datafram {dbname}")
 
-
-
     def describe_table_database(self, dbname, tbname):
-
-
-        
         """
         Returns None, simply prints
         """
@@ -165,9 +138,6 @@ class mysql_conn_class:
             self.app_logger.exception(e)
         except Exception as e:
             self.app_logger.exception(e)
-
-
-
 
     def gen_sql_type(pd_type):
         if pd_type=="Int64": return "INT"

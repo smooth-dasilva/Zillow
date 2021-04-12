@@ -1,8 +1,6 @@
 from Utilities.cxorcl_conn import orcl_conn_class
 import cx_Oracle
 import config
-import sqlalchemy as sqla
-
 import seaborn as sns
 import pandas as pd
 import numpy as np
