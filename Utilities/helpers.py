@@ -150,7 +150,7 @@ def DataframeArchive(df,  name, archiveLoc, logger: logging):
 
 def abbreviateLongNames(colname):
     if colname == 'Date':
-        return 'Data_MDY'
+        return 'Date_MDY'
     header_map = {'InventorySeasonallyAdjusted': 'InvSeasAdj',
                   'MedianListingPricePerSqft': 'MedLstPrPerSqft',
                   'MedianListingPrice': 'MedLstPr',
