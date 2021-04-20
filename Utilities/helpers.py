@@ -110,16 +110,16 @@ def is_file_empty(source, logger=logging):
 
 def get_type(val):
     try:
-        dateutil.parser.parse(val)
+        float(val)
     except:
         try:
-            float(val)
+            dateutil.parser.parse(val)
         except:
             return "string"
         else:
-            return "float64"
+            return "datetime64[ns]"
     else:
-        return "datetime64"
+        return "float64"
         
 def convert_col_types(df):
     col_types = {}
