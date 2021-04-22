@@ -22,8 +22,10 @@ def replace_nulls_with(data, replacewith, logger=logging):
                 replacewith (str): the value to replace nulls
                 logger (optional): the logger to forward logs
         Returns:
-                output (dataframe | sparkRDD): the input data with all nulls replaced
+                output (dataframe | sparkRDD): the input data with all nulls replaced, or the same data
         '''
+        output = data
+
         if isinstance(data, rdd.RDD) or isinstance(data, rdd.PipelinedRDD):
                 try:
                         output = data.map(lambda line: 
@@ -37,8 +39,9 @@ def replace_nulls_with(data, replacewith, logger=logging):
 
                 except Exception as e:
                         logger.warning(f'Error replacing nulls with value {replacewith} : {e}')
-                        return pd.DataFrame
+
         return output
+
 def archive_file(source, destination, logger=logging):
         '''
         Archives a file as .tar from a source to a destination
@@ -51,7 +54,10 @@ def archive_file(source, destination, logger=logging):
         '''
 
         archive = None
-        
+
+        if(not(os.path.exists(source))):
+                return
+
         try:
                 os.remove(destination)
         except Exception as e:
@@ -83,6 +89,9 @@ def copy_file(source, destination, logger=logging):
                 nothing
         '''
 
+        if(not(os.path.exists(source))):
+                return
+        
         try:
                 shutil.copy2(source, destination)
         except Exception as e:

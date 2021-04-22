@@ -1,18 +1,14 @@
 import pandas as pd
-import config
-import unittest     
-import Utilities.helpers as hlper
-import unittest     
-from Utilities.logger import setup_logger
+import config     
+import unittest
+import Utilities.helpers as hlper     
 
-from os import path
+from Utilities.logger import setup_logger
+from os import path, remove, stat
 from typing import Deque
 from Experts.FileExpert import FileExpertClass
 
-
-
 app_logger = setup_logger('app_logger', './app.log')
-
 
 FileExpert = FileExpertClass(app_logger, r'[A-Za-z0-9]+_time_series.csv',  config.staticTestLocation)
 NoPatterFileExpert = FileExpertClass(app_logger, r'badpattern',  config.dataLocation)
@@ -74,6 +70,54 @@ class HelpersTestCase(unittest.TestCase):
         self.assertEqual(convert_df.dtypes['Population'], "float64")
         self.assertEqual(convert_df.dtypes['Record Date'], "datetime64[ns]")
         self.assertEqual(convert_df.dtypes['RegionName'], "string")     
+
+
+class HelpersArchiveCopyCheckAndNullFileTestCase(unittest.TestCase):
+    def setUp(self):
+        self.df1 = pd.DataFrame({'a':[1,3,pd.NA], 'b':[2,4,pd.NA]})
+        self.df2 = pd.DataFrame({'a':[1,3,'NAN'], 'b':[2,4,'NAN']})
+        self.df3 = pd.DataFrame({'a':[1,3,5], 'b':[2,4,6]})
+        self.df4 = pd.DataFrame({'a':[1,3,5], 'b':[2,4,6]})
+
+    def tearDown(self):
+        try:
+            remove(config.staticTestLocation + 'archive.tar')
+        except Exception as e:
+            app_logger.debug(f'Could not delete archive in testing {e}')
+        
+        try:
+            remove(config.staticTestLocation + 'copy-destination.csv')
+        except Exception as e:
+            app_logger.debug(f'Could not delete copy in testing {e}')
+
+    def test_ReplaceNullsWithReturnsReplacedDF(self):
+        self.assertEqual(hlper.replace_nulls_with(self.df1, 'NAN').values.tolist(), self.df2.values.tolist())
+
+    def test_ReplaceNullsWithReturnsSame(self):
+        self.assertEqual(hlper.replace_nulls_with(self.df3, 'NAN').values.tolist(), self.df4.values.tolist())
+
+    def test_ArchiveFileCreatesArchive(self):
+        hlper.archive_file(config.staticTestLocation + 'archive-source.csv', config.staticTestLocation + 'archive.tar')
+        self.assertEqual(path.exists(config.staticTestLocation + 'archive.tar'), True)
+
+    def test_ArchiveFileFailsArchiveCreation(self):
+        hlper.archive_file(config.staticTestLocation + 'archive-source-fake.csv', config.staticTestLocation + 'archive.tar')
+        self.assertEqual(path.exists(config.staticTestLocation + 'archive.tar'), False)
+
+    def test_CopyFileCopiesFile(self):
+        hlper.copy_file(config.staticTestLocation + 'copy-source.csv', config.staticTestLocation + 'copy-destination.csv')
+        self.assertEqual(path.exists(config.staticTestLocation + 'copy-destination.csv'), True)
+        self.assertEqual(stat(config.staticTestLocation + 'copy-source.csv').st_size, stat(config.staticTestLocation + 'copy-destination.csv').st_size)
+    
+    def test_CopyFileFailsFileCopy(self):
+        hlper.copy_file(config.staticTestLocation + 'copy-source-fake.csv', config.staticTestLocation + 'copy-destination.csv')
+        self.assertEqual(path.exists(config.staticTestLocation + 'copy-destination.csv'), False)
+    
+    def test_IsFileEmptySucceeds(self):
+        self.assertEqual(stat(config.staticTestLocation + 'empty-file.csv').st_size, 0)
+
+    def test_IsFileEmptyFails(self):
+        self.assertGreater(stat(config.staticTestLocation + 'data-file.csv').st_size, 0)
 
 if __name__ =="__main__":
     unittest.main()
