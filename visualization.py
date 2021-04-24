@@ -186,29 +186,3 @@ def save_plot(plot, destination='plot.png', logger=logging):
         image.savefig(destination, bbox_inches='tight')
     except Exception as e:
         logger.info(f'Could not save image {e}')
-
-
-
-def main():
-    orcl_conn = orcl_conn_class(config.mysql_user, config.mysql_pwd , config.mysql_host,config.mysql_service)
-    orcl_conn.get_orcl_conn_version()
-
-    query = """
-            SELECT 
-            DIM_LOCATION.date_column, 
-            DIM_LOCATION.regionname, 
-            avg(FACT_TS.ZRIPERSQFT_ALLHOMES) 
-            FROM 
-            DIM_LOCATION 
-            INNER JOIN FACT_TS ON DIM_LOCATION.fact_id = FACT_TS.fact_id 
-            Where DIM_LOCATION.ts_type = 'STATE' and FACT_TS.ZRIPERSQFT_ALLHOMES > 0 and FACT_TS.Sale_Counts>500
-            Group by DIM_LOCATION.date_column, DIM_LOCATION.regionname 
-
-            """
-    #query  =  "select * from (Select  extract(year from d.DATE_COLUMN) as yr, d.regionname,f.PCTOFHMSSLNGLOSS_ALLHOMES as mx,  Rank() over (Partition by d.date_column order by  (f.PCTOFHMSSLNGLOSS_ALLHOMES)  DESC) as Rank from dim_location d INNER JOIN fact_ts f ON d.FACT_ID = f.FACT_ID Where extract(year from d.DATE_COLUMN)>2009 and f.PCTOFHMSSLNGLOSS_ALLHOMES>0 and d.ts_type = 'STATE' Order by yr, mx ) tmp where Rank  = 1" 
-    df = orcl_conn.get_sql_query_reult(query)
-    print(df)
-
-
-if __name__ == "__main__":
-    main()

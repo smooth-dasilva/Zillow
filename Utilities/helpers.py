@@ -158,26 +158,11 @@ def DataframeArchive(df,  name, archiveLoc, logger: logging):
             logger.exception(e)
 
 def abbreviateLongNames(colname):
-    if colname == 'Date':
-        return 'Date_MDY'
-    header_map = {'InventorySeasonallyAdjusted': 'InvSeasAdj',
-                  'MedianListingPricePerSqft': 'MedLstPrPerSqft',
-                  'MedianListingPrice': 'MedLstPr',
-                  'MedianPctOfPriceReduction': 'MedPctOfPrRed',
-                  'MedianRentalPricePerSqft': 'MedRntPrPerSqft',
-                  'MedianRentalPrice': 'MedRntPr',
-                  'PctOfHomesDecreasingInValues': 'PctOfHomeDecVal',
-                  'PctOfHomesIncreasingInValues': 'PctOfHomeIncVal',
-                  'PctOfListingsWithPriceReductionsSeasAdj': 'PctLstPrRedSeasAdj',
-                  'SingleFamilyResidence': 'SnglFamRes',
-                  'MultiFamilyResidence5PlusUnits': 'MltFmRes5Uts',
-                  'MedianPriceCutDollar': 'MedPrCutDlr',
-                  'PctOfHomesSellingForGain': 'PctOfHmsSlngGain',
-                  'PctOfHomesSellingForLoss': 'PctOfHmsSlngLoss',
-                  'PctOfListingsWithPriceReductions': 'PctOfLstsWitPrRed',
-                  'SingleFamilyResidenceRental': 'SnglFamResRent',
-                  '5BedroomOrMore': '5BedOrMore'}
+    if colname.lower() == 'date':
+        return 'Date_Column'
+    header_map = config.header_map
     colname_split = colname.split('_')
-    if colname_split[0] in header_map.keys():
-        colname_split[0] = header_map[colname_split[0]]
+    for index, delim in enumerate(colname_split):
+        if delim in header_map.keys():
+                colname_split[index] = header_map[colname_split[index]]
     return '_'.join(colname_split)

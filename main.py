@@ -1,13 +1,12 @@
 import pandas as pd
+import config
 
-import pandas as pd
 
-
+from Utilities.cxorcl_conn import orcl_conn_class
 from Utilities.logger import setup_logger
 from quickstart import SendMessage
 from Experts.FileExpert import FileExpertClass
 from Utilities.helpers import *
-import config
 
 
 #list of regex to search for
@@ -23,6 +22,7 @@ app_logger.info(f"\nBegin app log\n{logSeparator}")
 old_new_names_map = {}
 
 def main():
+    orcl_conn = orcl_conn_class(app_logger, config.orcl_user, config.orcl_pwd , config.orcl_host,config.orcl_service, config.orcl_port)
     
     for pattern in regex_list:
         filesFinder = FileExpertClass(app_logger, pattern, config.dataLocation)
@@ -36,23 +36,23 @@ def main():
             if is_file_empty(fullpath):
                 app_logger.error(f"\nFound empty file at {fullpath}")
             else: 
+                
                 app_logger.info(f"\nProcessing file: {name}\nLoading file into pandas dataframe...")
                 df = pd.read_csv(fullpath)
+                app_logger.info(f"\nRenaming columns")
                 for colname in df.columns:
-                    if '_' in colname:
-                        old_new_names_map[colname] = abbreviateLongNames(colname)
+                    old_new_names_map[colname] = abbreviateLongNames(colname)
                 df = df.rename(columns=old_new_names_map)
-
-                app_logger.info(f"\nConverting dtypes...")
-                df = convert_col_types(df)
-                app_logger.info(f"\nReplacing nulls with string 'NAN'")
-                df = replace_nulls_with(data=df, replacewith="NAN", logger=app_logger)
+                app_logger.info(f"\nCreating oracle RDS table")
+                orcl_conn.create_table(df.columns, name.split("_")[0])
                 app_logger.info(f"\nArchiving file...") 
                 DataframeArchive(df, name, config.archiveLocation, app_logger)
 
-    SendMessage(config.sender, config.to, config.subject, config.msgHtml, config.msgPlain, config.appLogLocation)
+
 
 if __name__ =="__main__":
     main()
 
+
 app_logger.info(f"\nEnd app log\n{logSeparator}")
+SendMessage(config.sender, config.to, config.subject, config.msgHtml, config.msgPlain, config.appLogLocation)
