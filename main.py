@@ -8,7 +8,6 @@ from quickstart import SendMessage
 from Experts.FileExpert import FileExpertClass
 from Utilities.helpers import *
 
-
 #list of regex to search for
 regex_list = [r'[A-Za-z0-9]+_time_series.csv'] 
 

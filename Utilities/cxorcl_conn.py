@@ -2,6 +2,7 @@ import contextlib
 import cx_Oracle
 import pandas as pd
 
+#cx_Oracle.init_oracle_client(lib_dir=r"C:\Oracle")
 
 class orcl_conn_class:
 
@@ -52,5 +53,3 @@ class orcl_conn_class:
                 conn.commit()
         except cx_Oracle.DatabaseError as e:
             self.app_logger.exception(e)
-
-

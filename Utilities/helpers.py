@@ -163,6 +163,6 @@ def abbreviateLongNames(colname):
     header_map = config.header_map
     colname_split = colname.split('_')
     for index, delim in enumerate(colname_split):
-        if delim in header_map.keys():
+        if delim in header_map.keys() and len(colname) > 29:
                 colname_split[index] = header_map[colname_split[index]]
     return '_'.join(colname_split)
