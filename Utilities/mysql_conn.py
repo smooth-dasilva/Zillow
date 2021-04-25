@@ -19,8 +19,8 @@ class mysql_conn_class:
             """
             Context manager used for when specifying database (eg add a record). db kwarg specified
             """
-            conn = mysql.connector.connect(host=config.orcl_host,
-                                        user=config.orcl_user,
+            conn = mysql.connector.connect(host=config.mysql_host,
+                                        user=config.mysql_user,
                                         password=os.environ.get('MYSQL_PWD'),
                                         database=db)
             try:
@@ -41,8 +41,8 @@ class mysql_conn_class:
                                         )
             try:
                 yield conn
-            except Exception as e:
-                self.app_logger.exception(e)
+            except mysql.connector.Error as e:
+                self.app_logger.exception("Tracebac:k\n"+e)
             finally:
                 conn.close()
 
@@ -100,7 +100,7 @@ class mysql_conn_class:
             self.app_logger.exception(e)
             self.app_logger.error("Error creating new table")
 
-    def add_dataframe_to_db(self, dbname, tbname,df):####TODO Better
+    def add_dataframe_to_db(self, dbname, tbname,df):
         try:
             hostname="localhost"
             uname="root"
@@ -130,7 +130,6 @@ class mysql_conn_class:
                 describe_table_query = f"DESCRIBE {tbname}"
                 with connection.cursor() as cursor:
                     cursor.execute(describe_table_query)
-                    # Fetch rows from last executed query
                     result = cursor.fetchall()
                     for row in result:
                         print(row)

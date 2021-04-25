@@ -145,39 +145,14 @@ def convert_col_types(df):
     return df.astype(col_types, copy = False)
 
 
-
-
-    
-def DataframeArchive(df,  name, archiveLoc, logger: logging):
-    if not df.empty:
-        try:
-            df.to_csv(archiveLoc+name, index = False)
-            archive_file(config.archiveLocation+name, archiveLoc+name[:-4]+ '.tar.gz')
-        except Exception as e:
-            logger.error(f"Caught an error trying to archive {name}...")
-            logger.exception(e)
-
 def abbreviateLongNames(colname):
-    if colname == 'Date':
-        return 'Date_MDY'
-    header_map = {'InventorySeasonallyAdjusted': 'InvSeasAdj',
-                  'MedianListingPricePerSqft': 'MedLstPrPerSqft',
-                  'MedianListingPrice': 'MedLstPr',
-                  'MedianPctOfPriceReduction': 'MedPctOfPrRed',
-                  'MedianRentalPricePerSqft': 'MedRntPrPerSqft',
-                  'MedianRentalPrice': 'MedRntPr',
-                  'PctOfHomesDecreasingInValues': 'PctOfHomeDecVal',
-                  'PctOfHomesIncreasingInValues': 'PctOfHomeIncVal',
-                  'PctOfListingsWithPriceReductionsSeasAdj': 'PctLstPrRedSeasAdj',
-                  'SingleFamilyResidence': 'SnglFamRes',
-                  'MultiFamilyResidence5PlusUnits': 'MltFmRes5Uts',
-                  'MedianPriceCutDollar': 'MedPrCutDlr',
-                  'PctOfHomesSellingForGain': 'PctOfHmsSlngGain',
-                  'PctOfHomesSellingForLoss': 'PctOfHmsSlngLoss',
-                  'PctOfListingsWithPriceReductions': 'PctOfLstsWitPrRed',
-                  'SingleFamilyResidenceRental': 'SnglFamResRent',
-                  '5BedroomOrMore': '5BedOrMore'}
+    if colname.lower().split("_")[0] == 'inventorytiershare':
+        colname = colname.split("_")[0]+'_'+colname.split("_")[1]
+    if colname.lower() == 'date':
+        return 'Date_Column'
+    header_map = config.header_map
     colname_split = colname.split('_')
-    if colname_split[0] in header_map.keys():
-        colname_split[0] = header_map[colname_split[0]]
+    for index, delim in enumerate(colname_split):
+        if delim in header_map.keys() and len(colname) > 30:
+                colname_split[index] = header_map[colname_split[index]]
     return '_'.join(colname_split)
