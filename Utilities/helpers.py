@@ -4,43 +4,9 @@ import shutil
 import tarfile
 import logging
 import pandas as pd
-import numpy as np
 
 import config
 import dateutil.parser
-
-
-from pyspark import rdd
-from pyspark import SparkContext
-
-def replace_nulls_with(data, replacewith, logger=logging):
-        '''
-        Replaces all nulls in pandas dataframe or spark rdd 
-                and returns output in matching format.
-        Parameters:
-                data (dataframe | sparkRDD): the data to scan
-                replacewith (str): the value to replace nulls
-                logger (optional): the logger to forward logs
-        Returns:
-                output (dataframe | sparkRDD): the input data with all nulls replaced, or the same data
-        '''
-        output = data
-
-        if isinstance(data, rdd.RDD) or isinstance(data, rdd.PipelinedRDD):
-                try:
-                        output = data.map(lambda line: 
-                                        tuple(map(lambda field: (re.match(r'^[ ]*$', str(field)) != None)*(replacewith) or field, line.split(','))))
-                except Exception as e:
-                        logger.warning(f'Error replacing nulls with value {replacewith} : {e}')
-
-        elif isinstance(data, pd.core.frame.DataFrame):
-                try:
-                        output = data.replace(to_replace = np.nan, value=replacewith)
-
-                except Exception as e:
-                        logger.warning(f'Error replacing nulls with value {replacewith} : {e}')
-
-        return output
 
 def archive_file(source, destination, logger=logging):
         '''
@@ -116,38 +82,8 @@ def is_file_empty(source, logger=logging):
                 logger.info(f'Could not find file size of source {source}: {e}')
         
         return (size == 0)
-
-def get_type(val):
-    try:
-        float(val)
-    except:
-        try:
-            dateutil.parser.parse(val)
-        except:
-            return "string"
-        else:
-            return "datetime64[ns]"
-    else:
-        return "float64"
-        
-def convert_col_types(df):
-    col_types = {}
-    for col in df.columns:
-        for cell in df[col]:
-            try:
-                col_type = get_type(cell)
-            except:
-                pass
-            else:
-                col_types[col] = col_type
-                break
-    col_types["RegionName"] = "string"
-    return df.astype(col_types, copy = False)
-
-
+     
 def abbreviateLongNames(colname):
-    if colname.lower().split("_")[0] == 'inventorytiershare':
-        colname = colname.split("_")[0]+'_'+colname.split("_")[1]
     if colname.lower() == 'date':
         return 'Date_Column'
     header_map = config.header_map
