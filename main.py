@@ -58,4 +58,4 @@ if __name__ =="__main__":
 
 
 app_logger.info(f"\nEnd app log\n{logSeparator}")
-#SendMessage(config.sender, config.to, config.subject, config.msgHtml, config.msgPlain, config.appLogLocation)
+SendMessage(config.sender, config.to, config.subject, config.msgHtml, config.msgPlain, config.appLogLocation)
