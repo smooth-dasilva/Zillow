@@ -47,13 +47,15 @@ convert_df = hlper.convert_col_types(test_df)
 class HelpersTestCase(unittest.TestCase):
 
     def test_AbbreviateLongNamesChangesDateColName(self):
-        self.assertEqual(hlper.abbreviateLongNames("Date"), "Date_MDY") 
+        self.assertEqual(hlper.abbreviateLongNames("Date"), "Date_Column") 
     
-    def test_AbbreviateLongNamesReturnsShortenedStringOfFirstIndexWhenDelimittedByUnderScore(self):
-        self.assertEqual(hlper.abbreviateLongNames("InventorySeasonallyAdjusted"), "InvSeasAdj") 
+    def test_AbbreviateLongNamesReturnsShortenedStringOfWhenDelimittedByUnderScore(self):
         self.assertEqual(hlper.abbreviateLongNames("InventorySeasonallyAdjusted_Else"), "InvSeasAdj_Else") 
-        self.assertEqual(hlper.abbreviateLongNames("InventorySeasonallyAdjusted_Else_AnythingElse"), "InvSeasAdj_Else_AnythingElse")
+        self.assertEqual(hlper.abbreviateLongNames("InventorySeasonallyAdjusted_MedianListingPricePerSqft_AnythingElse"), "InvSeasAdj_MedLstPrPerSqft_AnythingElse")
     
+    def test_AbbreviateLongNamesDoesntReturnsShortenedStringIfNotLongEnough(self):
+        self.assertNotEqual(hlper.abbreviateLongNames("InventorySeasonallyAdjusted"), "InvSeasAdj") 
+
     def test_AbbreviateLongNamesDoesntReturnShortenedStringIfNotFormattedProperly(self):
         self.assertEqual(hlper.abbreviateLongNames("inventoryseasonallyadjusted_AnythingElse"), "inventoryseasonallyadjusted_AnythingElse")
 
@@ -81,12 +83,12 @@ class HelpersArchiveCopyCheckAndNullFileTestCase(unittest.TestCase):
 
     def tearDown(self):
         try:
-            remove(config.staticTestLocation + 'archive.tar')
+            remove(config.fileTestLocation + 'archive.tar')
         except Exception as e:
             app_logger.debug(f'Could not delete archive in testing {e}')
         
         try:
-            remove(config.staticTestLocation + 'copy-destination.csv')
+            remove(config.fileTestLocation + 'copy-destination.csv')
         except Exception as e:
             app_logger.debug(f'Could not delete copy in testing {e}')
 
@@ -97,27 +99,27 @@ class HelpersArchiveCopyCheckAndNullFileTestCase(unittest.TestCase):
         self.assertEqual(hlper.replace_nulls_with(self.df3, 'NAN').values.tolist(), self.df4.values.tolist())
 
     def test_ArchiveFileCreatesArchive(self):
-        hlper.archive_file(config.staticTestLocation + 'archive-source.csv', config.staticTestLocation + 'archive.tar')
-        self.assertEqual(path.exists(config.staticTestLocation + 'archive.tar'), True)
+        hlper.archive_file(config.fileTestLocation + 'archive-source.csv', config.fileTestLocation + 'archive.tar')
+        self.assertEqual(path.exists(config.fileTestLocation + 'archive.tar'), True)
 
     def test_ArchiveFileFailsArchiveCreation(self):
-        hlper.archive_file(config.staticTestLocation + 'archive-source-fake.csv', config.staticTestLocation + 'archive.tar')
-        self.assertEqual(path.exists(config.staticTestLocation + 'archive.tar'), False)
+        hlper.archive_file(config.fileTestLocation + 'archive-source-fake.csv', config.fileTestLocation + 'archive.tar')
+        self.assertEqual(path.exists(config.fileTestLocation + 'archive.tar'), False)
 
     def test_CopyFileCopiesFile(self):
-        hlper.copy_file(config.staticTestLocation + 'copy-source.csv', config.staticTestLocation + 'copy-destination.csv')
-        self.assertEqual(path.exists(config.staticTestLocation + 'copy-destination.csv'), True)
-        self.assertEqual(stat(config.staticTestLocation + 'copy-source.csv').st_size, stat(config.staticTestLocation + 'copy-destination.csv').st_size)
+        hlper.copy_file(config.fileTestLocation + 'copy-source.csv', config.fileTestLocation + 'copy-destination.csv')
+        self.assertEqual(path.exists(config.fileTestLocation + 'copy-destination.csv'), True)
+        self.assertEqual(stat(config.fileTestLocation + 'copy-source.csv').st_size, stat(config.fileTestLocation + 'copy-destination.csv').st_size)
     
     def test_CopyFileFailsFileCopy(self):
-        hlper.copy_file(config.staticTestLocation + 'copy-source-fake.csv', config.staticTestLocation + 'copy-destination.csv')
-        self.assertEqual(path.exists(config.staticTestLocation + 'copy-destination.csv'), False)
+        hlper.copy_file(config.fileTestLocation + 'copy-source-fake.csv', config.fileTestLocation + 'copy-destination.csv')
+        self.assertEqual(path.exists(config.fileTestLocation + 'copy-destination.csv'), False)
     
     def test_IsFileEmptySucceeds(self):
-        self.assertEqual(stat(config.staticTestLocation + 'empty-file.csv').st_size, 0)
+        self.assertEqual(stat(config.fileTestLocation + 'empty-file.csv').st_size, 0)
 
     def test_IsFileEmptyFails(self):
-        self.assertGreater(stat(config.staticTestLocation + 'data-file.csv').st_size, 0)
+        self.assertGreater(stat(config.fileTestLocation + 'data-file.csv').st_size, 0)
 
 if __name__ =="__main__":
     unittest.main()

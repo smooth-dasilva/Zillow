@@ -5,3 +5,6 @@ omit =
     */distutils/*
     */Lib/*
     Tests/*
+    */visualization.py
+    */main.py
+    */quickstart.py
