@@ -42,7 +42,6 @@ class FileExpertTestCase(unittest.TestCase):
 
 d = {'Population' : ['37000000','54000000'], 'Record Date' : ['2003-07-15','23-07-1985'], 'RegionName' : ['Texas','California']}
 test_df = pd.DataFrame(data = d)
-convert_df = hlper.convert_col_types(test_df)
 
 class HelpersTestCase(unittest.TestCase):
 
@@ -58,21 +57,6 @@ class HelpersTestCase(unittest.TestCase):
 
     def test_AbbreviateLongNamesDoesntReturnShortenedStringIfNotFormattedProperly(self):
         self.assertEqual(hlper.abbreviateLongNames("inventoryseasonallyadjusted_AnythingElse"), "inventoryseasonallyadjusted_AnythingElse")
-
-    def test_GetTypeReturnsFloatGivenFloatType(self):
-        self.assertEqual(hlper.get_type("999"), "float64")
-    
-    def test_GetTypeReturnsDateGivenDateType(self):
-        self.assertEqual(hlper.get_type("1999-01-27"), "datetime64[ns]")
-    
-    def test_GetTypeReturnsStringGivenStringType(self):
-        self.assertEqual(hlper.get_type("California"), "string")
-    
-    def test_ConvertColTypesCorrectlyConvertsColumns(self):
-        self.assertEqual(convert_df.dtypes['Population'], "float64")
-        self.assertEqual(convert_df.dtypes['Record Date'], "datetime64[ns]")
-        self.assertEqual(convert_df.dtypes['RegionName'], "string")     
-
 
 class HelpersArchiveCopyCheckAndNullFileTestCase(unittest.TestCase):
     def setUp(self):
@@ -91,12 +75,6 @@ class HelpersArchiveCopyCheckAndNullFileTestCase(unittest.TestCase):
             remove(config.fileTestLocation + 'copy-destination.csv')
         except Exception as e:
             app_logger.debug(f'Could not delete copy in testing {e}')
-
-    def test_ReplaceNullsWithReturnsReplacedDF(self):
-        self.assertEqual(hlper.replace_nulls_with(self.df1, 'NAN').values.tolist(), self.df2.values.tolist())
-
-    def test_ReplaceNullsWithReturnsSame(self):
-        self.assertEqual(hlper.replace_nulls_with(self.df3, 'NAN').values.tolist(), self.df4.values.tolist())
 
     def test_ArchiveFileCreatesArchive(self):
         hlper.archive_file(config.fileTestLocation + 'archive-source.csv', config.fileTestLocation + 'archive.tar')
