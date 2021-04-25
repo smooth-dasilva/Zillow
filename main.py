@@ -27,30 +27,34 @@ def main():
     orcl_conn = orcl_conn_class(app_logger, config.orcl_user, config.orcl_pwd , config.orcl_host,config.orcl_service, config.orcl_port)
     
     for pattern in regex_list:
+        
         filesFinder = FileExpertClass(app_logger, pattern, config.dataLocation)
         if filesFinder.path=="ERROR":
-            return app_logger.error(f"\nValid path not given. \nTerminating program...")
+            return app_logger.error(f"\nValid path not given: {config.dataLocation}. \nTerminating program...")
+       
         if not filesFinder.NameDeq:
-            return app_logger.error(f"\nNo files with regex pattern {filesFinder.pattern} match in the given {filesFinder.path}. \nTerminating the program...")
+            app_logger.error(f"\nNo files with regex pattern {filesFinder.pattern} match in the given {filesFinder.path}. \nMoving on to next pattern; if none, terminating...")
+        else:
+            for name in filesFinder.NameDeq: 
+                nameNoExtension = name[:-4]
+                fullpath=filesFinder.path+name
 
-        for name in filesFinder.NameDeq: 
-            fullpath=filesFinder.path+name
-            if is_file_empty(fullpath):
-                app_logger.error(f"\nFound empty file at {fullpath}")
-            else: 
+                if is_file_empty(fullpath):
+                    app_logger.error(f"\nFound empty file at {fullpath}")
+                else: 
+                    app_logger.info(f"\nProcessing file: {name}\nLoading file into pandas dataframe...")
+                    df = pd.read_csv(fullpath)
                 
-                app_logger.info(f"\nProcessing file: {name}\nLoading file into pandas dataframe...")
-                df = pd.read_csv(fullpath)
-                fileend = "TS"
-                if name.split("_")[-1][:-4] == "crosswalk": fileend = "CW"
-                app_logger.info(f"\nRenaming columns")
-                for colname in df.columns:
-                    old_new_names_map[colname] = abbreviateLongNames(colname)
-                df = df.rename(columns=old_new_names_map)
-                app_logger.info(f"\nCreating oracle RDS table")
-                orcl_conn.create_table(df.columns, name.split("_")[0], fileend)
-                app_logger.info(f"\nArchiving file...") 
-                archive_file(config.dataLocation+name, config.archiveLocation+name[:-4]+'_'+today+'.tar.gz')
+                    app_logger.info(f"\nRenaming columns")
+                    for colname in df.columns:
+                        old_new_names_map[colname] = abbreviateLongNames(colname)
+                    df = df.rename(columns=old_new_names_map)
+
+                    app_logger.info(f"\nCreating oracle RDS table")
+                    orcl_conn.create_table(df.columns, name)
+                    
+                    app_logger.info(f"\nArchiving file...") 
+                    archive_file(config.dataLocation+name, config.archiveLocation+nameNoExtension+'_' +today + '.tar.gz')
 
 
 if __name__ =="__main__":

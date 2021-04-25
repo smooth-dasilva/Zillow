@@ -11,6 +11,7 @@ class orcl_conn_class:
         self.p_host = p_host
         self.p_service = p_service
         self.p_port = p_port
+
     @contextlib.contextmanager
     def get_orcl_conn(self):
             dsn = cx_Oracle.makedsn(host=self.p_host, port=self.p_port, sid=self.p_service)
@@ -25,6 +26,7 @@ class orcl_conn_class:
                 self.app_logger.exception(e)
             finally:
                 conn.close()
+
     def get_orcl_conn_version(self):
         try:
             with self.get_orcl_conn() as conn:
@@ -38,10 +40,14 @@ class orcl_conn_class:
                 return pd.read_sql(query, conn)
         except cx_Oracle.DatabaseError as e:
             self.app_logger.exception(e)
-    def create_table(self, colnames, tbname,tbnameend):
+
+    def create_table(self, colnames, tbname):
+        filenamesplit = tbname.split("_")
+        fileend = "TS"
+        if filenamesplit[-1] == "crosswalk": fileend = "CW"
         try:
-            tbname = tbname.replace(" ", "")
-            createTableQuery = f"""CREATE TABLE STG_{tbname}_{tbnameend} ("""
+            tbname = tbname.replace(" ", "").split("_")[0]
+            createTableQuery = f"""CREATE TABLE STG_{filenamesplit[0].replace(" ", "")}_{fileend} ("""
             for colname in colnames:
                 createTableQuery += " "+ colname + """ VARCHAR(50),"""
             createTableQuery = createTableQuery[:-1] + """)"""

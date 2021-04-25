@@ -145,18 +145,6 @@ def convert_col_types(df):
     return df.astype(col_types, copy = False)
 
 
-
-
-    
-def DataframeArchive(df,  name, archiveLoc, logger: logging):
-    if not df.empty:
-        try:
-            df.to_csv(archiveLoc+name, index = False)
-            archive_file(config.archiveLocation+name, archiveLoc+name[:-4]+ '.tar.gz')
-        except Exception as e:
-            logger.error(f"Caught an error trying to archive {name}...")
-            logger.exception(e)
-
 def abbreviateLongNames(colname):
     if colname.lower().split("_")[0] == 'inventorytiershare':
         colname = colname.split("_")[0]+'_'+colname.split("_")[1]
