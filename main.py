@@ -7,9 +7,12 @@ from Utilities.logger import setup_logger
 from quickstart import SendMessage
 from Experts.FileExpert import FileExpertClass
 from Utilities.helpers import *
+from datetime import date
+
+today = date.today().strftime("%b-%d-%Y")
 
 #list of regex to search for
-regex_list = [r'[A-Za-z0-9]+_time_series.csv'] 
+regex_list = [r'[A-Za-z0-9]+_(time_series|crosswalk).csv'] 
 
 
 os.chdir(config.source)
@@ -38,15 +41,16 @@ def main():
                 
                 app_logger.info(f"\nProcessing file: {name}\nLoading file into pandas dataframe...")
                 df = pd.read_csv(fullpath)
+                fileend = "TS"
+                if name.split("_")[-1][:-4] == "crosswalk": fileend = "CW"
                 app_logger.info(f"\nRenaming columns")
                 for colname in df.columns:
                     old_new_names_map[colname] = abbreviateLongNames(colname)
                 df = df.rename(columns=old_new_names_map)
                 app_logger.info(f"\nCreating oracle RDS table")
-                orcl_conn.create_table(df.columns, name.split("_")[0])
+                orcl_conn.create_table(df.columns, name.split("_")[0], fileend)
                 app_logger.info(f"\nArchiving file...") 
-                DataframeArchive(df, name, config.archiveLocation, app_logger)
-
+                archive_file(config.dataLocation+name, config.archiveLocation+name[:-4]+'_'+today+'.tar.gz')
 
 
 if __name__ =="__main__":
@@ -54,4 +58,4 @@ if __name__ =="__main__":
 
 
 app_logger.info(f"\nEnd app log\n{logSeparator}")
-SendMessage(config.sender, config.to, config.subject, config.msgHtml, config.msgPlain, config.appLogLocation)
+#SendMessage(config.sender, config.to, config.subject, config.msgHtml, config.msgPlain, config.appLogLocation)

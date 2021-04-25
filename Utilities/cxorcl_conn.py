@@ -2,8 +2,6 @@ import contextlib
 import cx_Oracle
 import pandas as pd
 
-#cx_Oracle.init_oracle_client(lib_dir=r"C:\Oracle")
-
 class orcl_conn_class:
 
     def __init__(self, _app_logger, usr, pwd,  p_host, p_service, p_port) -> None:
@@ -40,10 +38,10 @@ class orcl_conn_class:
                 return pd.read_sql(query, conn)
         except cx_Oracle.DatabaseError as e:
             self.app_logger.exception(e)
-    def create_table(self, colnames, tbname):
+    def create_table(self, colnames, tbname,tbnameend):
         try:
             tbname = tbname.replace(" ", "")
-            createTableQuery = f"""CREATE TABLE STG_{tbname}_TS ("""
+            createTableQuery = f"""CREATE TABLE STG_{tbname}_{tbnameend} ("""
             for colname in colnames:
                 createTableQuery += " "+ colname + """ VARCHAR(50),"""
             createTableQuery = createTableQuery[:-1] + """)"""

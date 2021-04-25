@@ -158,11 +158,13 @@ def DataframeArchive(df,  name, archiveLoc, logger: logging):
             logger.exception(e)
 
 def abbreviateLongNames(colname):
+    if colname.lower().split("_")[0] == 'inventorytiershare':
+        colname = colname.split("_")[0]+'_'+colname.split("_")[1]
     if colname.lower() == 'date':
         return 'Date_Column'
     header_map = config.header_map
     colname_split = colname.split('_')
     for index, delim in enumerate(colname_split):
-        if delim in header_map.keys() and len(colname) > 29:
+        if delim in header_map.keys() and len(colname) > 30:
                 colname_split[index] = header_map[colname_split[index]]
     return '_'.join(colname_split)
