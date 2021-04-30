@@ -5,7 +5,6 @@ import Utilities.helpers as hlper
 
 from Utilities.logger import setup_logger
 from os import path, remove, stat
-from typing import Deque
 from Experts.FileExpert import FileExpertClass
 
 app_logger = setup_logger('app_logger', './app.log')
@@ -17,9 +16,9 @@ InvalidDirectoryFileExpert = FileExpertClass(app_logger, r'[A-Za-z0-9]+_time_ser
 class FileExpertTestCase(unittest.TestCase):
 
     def test_FileExpertFindsFilesWithPatternWithConstructor(self):
-        self.assertEqual(FileExpert.NameDeq[0]+FileExpert.NameDeq[1], "Another_time_series.csvA_time_series.csv") 
+        self.assertEqual(FileExpert.NameList[0]+FileExpert.NameList[1], "Another_time_series.csvA_time_series.csv") 
     def test_FileExpertIgnoresFilesWithoutPatternWithConstructor(self):
-        self.assertEqual(NoPatterFileExpert.NameDeq, Deque([])) 
+        self.assertEqual(NoPatterFileExpert.NameList, []) 
 
     def test_FileExpertFindsInputtedDirectory(self):
         self.assertEqual(FileExpert.CheckPathValidity(), ["Another_time_series.csv", "A_time_series.csv"])
@@ -32,8 +31,8 @@ class FileExpertTestCase(unittest.TestCase):
     def test_FileExpertDoesntMatchWrongRegexPattern(self):
         self.assertFalse(FileExpert.MatchFilenameToPattern("Metro_time_series"), False)
     
-    def test_FileExpertsAddNamesFuncAddsNamesToNameDeqIfMathchesRegex(self):
-        self.assertEqual(FileExpert.AddFileNamesDeq(["New1", "New2", "Metro_time_series.csv"]), Deque(["Metro_time_series.csv"]))
+    def test_FileExpertsAddNamesFuncAddsNamesToNameListIfMathchesRegex(self):
+        self.assertEqual(FileExpert.AddFileNamesList(["New1", "New2", "Metro_time_series.csv"]), ["Metro_time_series.csv"])
     
     def test_FileExpertsReplacesPathToErrorGivenBadPath(self):
         self.assertEqual(InvalidDirectoryFileExpert.path, "ERROR")
