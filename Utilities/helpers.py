@@ -55,9 +55,6 @@ def copy_file(source, destination, logger=logging):
                 nothing
         '''
 
-        if(not(os.path.exists(source))):
-                return
-        
         try:
                 shutil.copy2(source, destination)
         except Exception as e:
@@ -71,7 +68,7 @@ def is_file_empty(source, logger=logging):
                 source (str): the path and name of file (e.g. /temp/source.csv)
                 logger (optional): the logger to forward logs
         Returns:
-                nothing
+                Bool: True (empty file or nonexistent file), False (file size not zero)
         '''
 
         size = 0

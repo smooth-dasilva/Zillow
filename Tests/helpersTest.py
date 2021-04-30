@@ -77,27 +77,34 @@ class HelpersArchiveCopyCheckAndNullFileTestCase(unittest.TestCase):
             app_logger.debug(f'Could not delete copy in testing {e}')
 
     def test_ArchiveFileCreatesArchive(self):
-        hlper.archive_file(config.fileTestLocation + 'archive-source.csv', config.fileTestLocation + 'archive.tar')
+        hlper.archive_file(config.fileTestLocation + 'archive-source.csv', config.fileTestLocation + 'archive.tar', logger=app_logger)
         self.assertEqual(path.exists(config.fileTestLocation + 'archive.tar'), True)
 
     def test_ArchiveFileFailsArchiveCreation(self):
-        hlper.archive_file(config.fileTestLocation + 'archive-source-fake.csv', config.fileTestLocation + 'archive.tar')
+        hlper.archive_file(config.fileTestLocation + 'archive-source-fake.csv', config.fileTestLocation + 'archive.tar', logger=app_logger)
         self.assertEqual(path.exists(config.fileTestLocation + 'archive.tar'), False)
 
+    def test_ArchiveFileFailsLoadAddClose(self):
+        hlper.archive_file(config.fileTestLocation + 'archive-source.csv', config.fileTestLocation + 'fake-directory/archive.tar', logger=app_logger)
+        self.assertEqual(path.exists(config.fileTestLocation + 'fake-directory/archive.tar'), False)
+
     def test_CopyFileCopiesFile(self):
-        hlper.copy_file(config.fileTestLocation + 'copy-source.csv', config.fileTestLocation + 'copy-destination.csv')
+        hlper.copy_file(config.fileTestLocation + 'copy-source.csv', config.fileTestLocation + 'copy-destination.csv', logger=app_logger)
         self.assertEqual(path.exists(config.fileTestLocation + 'copy-destination.csv'), True)
         self.assertEqual(stat(config.fileTestLocation + 'copy-source.csv').st_size, stat(config.fileTestLocation + 'copy-destination.csv').st_size)
     
     def test_CopyFileFailsFileCopy(self):
-        hlper.copy_file(config.fileTestLocation + 'copy-source-fake.csv', config.fileTestLocation + 'copy-destination.csv')
+        hlper.copy_file(config.fileTestLocation + 'copy-source-fake.csv', config.fileTestLocation + 'copy-destination.csv', logger=app_logger)
         self.assertEqual(path.exists(config.fileTestLocation + 'copy-destination.csv'), False)
     
     def test_IsFileEmptySucceeds(self):
-        self.assertEqual(stat(config.fileTestLocation + 'empty-file.csv').st_size, 0)
+        self.assertEqual(hlper.is_file_empty(config.fileTestLocation + 'empty-file.csv', logger=app_logger), True)
 
     def test_IsFileEmptyFails(self):
-        self.assertGreater(stat(config.fileTestLocation + 'data-file.csv').st_size, 0)
+        self.assertEqual(hlper.is_file_empty(config.fileTestLocation + 'data-file.csv', logger=app_logger), False)
+
+    def test_IsFileEmptyReturnsZeroWithNonExistentFile(self):
+        self.assertEqual(hlper.is_file_empty(config.fileTestLocation + 'data-file-fake.csv', logger=app_logger), True)
 
 if __name__ =="__main__":
     unittest.main()
