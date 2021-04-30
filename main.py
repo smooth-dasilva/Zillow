@@ -28,14 +28,16 @@ def main():
     
     for pattern in regex_list:
         
+
         filesFinder = FileExpertClass(app_logger, pattern, config.dataLocation)
         if filesFinder.path=="ERROR":
             return app_logger.error(f"\nValid path not given: {config.dataLocation}. \nTerminating program...")
        
-        if not filesFinder.NameDeq:
+        if not filesFinder.NameList:
             app_logger.error(f"\nNo files with regex pattern {filesFinder.pattern} match in the given {filesFinder.path}. \nMoving on to next pattern; if none, terminating...")
         else:
-            for name in filesFinder.NameDeq: 
+
+            for name in filesFinder.NameList: 
                 nameNoExtension = name[:-4]
                 fullpath=filesFinder.path+name
 
@@ -54,7 +56,7 @@ def main():
                     orcl_conn.create_table(df.columns, name)
                     
                     app_logger.info(f"\nArchiving file...") 
-                    archive_file(config.dataLocation+name, config.archiveLocation+nameNoExtension+'_' +today + '.tar.gz')
+                    archive_file(config.dataLocation+name, config.archiveLocation+nameNoExtension + '_' + today + '.tar.gz')
 
 
 if __name__ =="__main__":
