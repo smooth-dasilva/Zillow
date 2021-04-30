@@ -3,10 +3,10 @@ import logging
 import os.path
 import re
 
-from collections import deque
+
 
 class FileExpertClass:
-    NameDeq : dict
+    NameList : list
 
     app_logger : logging
 
@@ -21,15 +21,15 @@ class FileExpertClass:
         self.pattern =pattern
         self.path = path
         
-        self.NameDeq = self.AddFileNamesDeq(self.CheckPathValidity())
+        self.NameList = self.AddFileNamesList(self.CheckPathValidity())
     
-    def AddFileNamesDeq(self, files):
+    def AddFileNamesList(self, files):
         if files:
-            NameDeqTemp = deque()
+            NameListTemp = []
             for el in files:
                 if (self.MatchFilenameToPattern(el)):
-                    NameDeqTemp.append(el)
-            return NameDeqTemp
+                    NameListTemp.append(el)
+            return NameListTemp
 
     def MatchFilenameToPattern(self,filename):
         match = re.match(self.pattern, filename)
